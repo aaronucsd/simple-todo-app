@@ -1,5 +1,4 @@
-# simple-todo-app
-A simple todo app for codepath bootcamp
+# Android Pre-work: Todo App Demo
 
 (Sample of project submission README)
 

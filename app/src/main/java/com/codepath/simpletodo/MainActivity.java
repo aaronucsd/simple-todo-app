@@ -1,9 +1,10 @@
 package com.codepath.simpletodo;
 
+
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,7 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity  implements EditItemDialog.EditNameDialogListener {
     ArrayList<String> items;
     ArrayAdapter<String> itemsAdapter;
     ListView lvItems;
@@ -40,7 +41,6 @@ public class MainActivity extends Activity {
         //items.add("First Item");
         //items.add("Second Item");
         setupListViewListener();
-
     }
 
 
@@ -95,8 +95,8 @@ public class MainActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View item, int pos, long id) {
                 String value = itemsAdapter.getItem(pos);
                 pos_curr = pos;
-                launchComposeView(value);
-
+                //launchComposeView(value);
+                showEditDialog(value);
             }
         });
 
@@ -124,8 +124,18 @@ public class MainActivity extends Activity {
         }
     }
 
+    /*
+    * http://guides.codepath.com/android/Using-DialogFragment
+    * http://developer.android.com/reference/android/app/DialogFragment.html#BasicDialog
+    * */
+    private void showEditDialog(String value) {
+        FragmentManager fm = getSupportFragmentManager();
+        EditItemDialog editNameDialog = EditItemDialog.newInstance("Update and item");
+        editNameDialog.setTextValue(value);
+        editNameDialog.show(fm, "fragment_edit_item");
+    }
 
-    //Launches Edit view
+    //Launches Edit view page
     public void launchComposeView(String value) {
         // first parameter is the context, second is the class of the activity to launch
         Intent i = new Intent(MainActivity.this, EditItemActivity.class);
@@ -135,6 +145,16 @@ public class MainActivity extends Activity {
         startActivityForResult(i, REQUEST_CODE);
     }
 
+    @Override
+    public void onFinishEditDialog(String inputText) {
+        //Toast.makeText(this, "Hi, " + inputText, Toast.LENGTH_SHORT).show();
+
+        // Toast the name to display temporarily on screen
+        Toast.makeText(this, inputText, Toast.LENGTH_SHORT).show();
+        items.set(this.pos_curr, inputText);//update with saved value
+        itemsAdapter.notifyDataSetChanged();//refreshes the adaptor for the list
+        writeItems();//saveItems?
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
